@@ -1,0 +1,19 @@
+[project]
+name = "isotmpfs"
+version = "0.1.0"
+requires-python = ">=3.12"
+description = "Per-process isolated tmpfs via unprivileged user+mount namespaces"
+dependencies = []
+
+[tool.poetry]
+packages = [{ include = "isotmpfs", from = "src" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core>=1.9"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
