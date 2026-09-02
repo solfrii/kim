@@ -13,6 +13,12 @@ from typing import Protocol
 
 from isotmpfs import _libc
 
+# os.unshare()/os.CLONE_NEWUSER/os.CLONE_NEWNS only exist on Python 3.12+;
+# fall back to the ctypes binding in _libc on older interpreters.
+_unshare = getattr(os, "unshare", _libc.unshare)
+_CLONE_NEWUSER = getattr(os, "CLONE_NEWUSER", _libc.CLONE_NEWUSER)
+_CLONE_NEWNS = getattr(os, "CLONE_NEWNS", _libc.CLONE_NEWNS)
+
 
 class MountBackend(Protocol):
     def enter_isolated_namespace(self) -> None: ...
@@ -34,7 +40,7 @@ class CtypesBackend:
         # "nobody"), not the real caller id -- confirmed empirically.
         uid = os.getuid()
         gid = os.getgid()
-        os.unshare(os.CLONE_NEWUSER | os.CLONE_NEWNS)
+        _unshare(_CLONE_NEWUSER | _CLONE_NEWNS)
         self._write_id_maps(uid, gid)
 
     def _write_id_maps(self, uid: int, gid: int) -> None:
